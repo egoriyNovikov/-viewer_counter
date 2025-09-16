@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Redis сервер
+  redis:
+    image: redis:7-alpine
+    container_name: page_counter_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - counter_network
+    restart: unless-stopped
+
+  # Node.js приложение
+  app:
+    build: .
+    container_name: page_counter_app
+    ports:
+      - "3000:3000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+    depends_on:
+      - redis
+    networks:
+      - counter_network
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  redis_data:
+
+networks:
+  counter_network:
+    driver: bridge
