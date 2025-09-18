@@ -27,7 +27,6 @@ function initRoutes(app) {
       res.status(500).json({ error: 'Ошибка при получении данных страницы' });
     }
   });
-  
   app.get('/api/page/:pageId/users', async (req, res) => {
     const { pageId } = req.params;
     
@@ -58,6 +57,34 @@ function initRoutes(app) {
       });
     } catch (error) {
       res.status(500).json({ error: 'Ошибка при выходе со страницы' });
+    }
+  });
+
+  app.get('/api/page/:pageId/views', async (req, res) => {
+    const { pageId } = req.params;
+    
+    try {
+      const views = await pageTracker.getPageViews(pageId);
+      res.json({
+        pageId,
+        views
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при получении просмотров' });
+    }
+  });
+
+  app.post('/api/page/:pageId/view', async (req, res) => {
+    const { pageId } = req.params;
+    
+    try {
+      const views = await pageTracker.incrementPageViews(pageId);
+      res.json({
+        pageId,
+        views
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при увеличении счетчика' });
     }
   });
 }

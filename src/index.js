@@ -8,6 +8,8 @@ const port = getConfig().port || 3000
 
 app.use(express.json());
 
+app.use(express.static('public'));
+
 initRoutes(app);
 
 function startServer() {

@@ -18,6 +18,11 @@ class PageTraker {
       const { pageId, userId } = JSON.parse(message);
       console.log(`Пользователь ${userId} покинул страницу ${pageId}`);
     });
+    
+    await this.subscriber.subscribe('page-view', (message) => {
+      const { pageId, views } = JSON.parse(message);
+      console.log(`Страница ${pageId} просмотрена! Всего просмотров: ${views}`);
+    });
   }
   
   async userEnterPage(pageId, userId) {
@@ -42,6 +47,19 @@ class PageTraker {
   
   async getUsersOnPage(pageId) {
     return await this.publisher.sMembers(`page:${pageId}:users`);
+  }
+
+  async incrementPageViews(pageId) {
+    const views = await this.publisher.incr(`page:${pageId}:views`);
+    
+    await this.publisher.publish('page-view', JSON.stringify({ pageId, views }));
+    
+    return views;
+  }
+
+  async getPageViews(pageId) {
+    const views = await this.publisher.get(`page:${pageId}:views`);
+    return parseInt(views) || 0;
   }
 }
 
